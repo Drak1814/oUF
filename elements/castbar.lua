@@ -452,7 +452,7 @@ local Enable = function(object, unit)
 		end
 
 		castbar:SetScript("OnUpdate", castbar.OnUpdate or onUpdate)
-
+		--[=[
 		if(object.unit == "player") then
 			CastingBarFrame:UnregisterAllEvents()
 			CastingBarFrame.Show = CastingBarFrame.Hide
@@ -462,7 +462,7 @@ local Enable = function(object, unit)
 			PetCastingBarFrame.Show = PetCastingBarFrame.Hide
 			PetCastingBarFrame:Hide()
 		end
-
+		]=]
 		if(castbar:IsObjectType'StatusBar' and not castbar:GetStatusBarTexture()) then
 			castbar:SetStatusBarTexture[[Interface\TargetingFrame\UI-StatusBar]]
 		end
