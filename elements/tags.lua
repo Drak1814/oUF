@@ -263,15 +263,6 @@ local tagStrings = {
 		end
 	end]],
 
-	['pereclipse'] = [[function(u)
-		local m = UnitPowerMax('player', SPELL_POWER_ECLIPSE)
-		if(m == 0) then
-			return 0
-		else
-			return math.abs(UnitPower('player', SPELL_POWER_ECLIPSE)/m*100)
-		end
-	end]],
-
 	['curmana'] = [[function(unit)
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
@@ -281,16 +272,14 @@ local tagStrings = {
 	end]],
 
 	['soulshards'] = [[function()
-		if(IsPlayerSpell(WARLOCK_SOULBURN)) then
-			local num = UnitPower('player', SPELL_POWER_SOUL_SHARDS)
-			if(num > 0) then
-				return num
-			end
+		local num = UnitPower('player', SPELL_POWER_SOUL_SHARDS)
+		if(num > 0) then
+			return num
 		end
 	end]],
 
 	['holypower'] = [[function()
-		if(IsPlayerSpell(85673)) then
+		if(GetSpecialization() == SPEC_PALADIN_RETRIBUTION) then
 			local num = UnitPower('player', SPELL_POWER_HOLY_POWER)
 			if(num > 0) then
 				return num
@@ -299,15 +288,17 @@ local tagStrings = {
 	end]],
 
 	['chi'] = [[function()
-		local num = UnitPower('player', SPELL_POWER_CHI)
-		if(num > 0) then
-			return num
+		if(GetSpecialization() == SPEC_MONK_WINDWALKER) then
+			local num = UnitPower('player', SPELL_POWER_CHI)
+			if(num > 0) then
+				return num
+			end
 		end
 	end]],
 
-	['shadoworbs'] = [[function()
-		if(IsPlayerSpell(95740)) then
-			local num = UnitPower('player', SPELL_POWER_SHADOW_ORBS)
+	['arcanecharges'] = [[function()
+		if(GetSpecialization() == SPEC_MAGE_ARCANE) then
+			local num = UnitPower('player', SPELL_POWER_ARCANE_CHARGES)
 			if(num > 0) then
 				return num
 			end
@@ -319,6 +310,25 @@ local tagStrings = {
 		if(c == 'minus') then
 			return 'Affix'
 		end
+	end]],
+
+	['powercolor'] = [[function(u)
+		local pType, pToken, altR, altG, altB = UnitPowerType(u)
+		local t = _COLORS.power[pToken]
+
+		if(not t) then
+			if(altR) then
+				if(altR > 1 or altG > 1 or altB > 1) then
+					return Hex(altR / 255, altG / 255, altB / 255)
+				else
+					return Hex(altR, altG, altB)
+				end
+			else
+				return Hex(_COLORS.power[pType])
+			end
+		end
+
+		return Hex(t)
 	end]],
 }
 
@@ -383,7 +393,7 @@ local tagEvents = {
 	["smartlevel"]          = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
 	["threat"]              = "UNIT_THREAT_SITUATION_UPDATE",
 	["threatcolor"]         = "UNIT_THREAT_SITUATION_UPDATE",
-	['cpoints']             = 'UNIT_COMBO_POINTS PLAYER_TARGET_CHANGED',
+	['cpoints']             = 'UNIT_POWER_FREQUENT PLAYER_TARGET_CHANGED',
 	['affix']				= 'UNIT_CLASSIFICATION_CHANGED',
 	['plus']				= 'UNIT_CLASSIFICATION_CHANGED',
 	['rare']                = 'UNIT_CLASSIFICATION_CHANGED',
@@ -396,13 +406,13 @@ local tagEvents = {
 	["perpp"]               = 'UNIT_MAXPOWER UNIT_POWER',
 	["offline"]             = "UNIT_HEALTH UNIT_CONNECTION",
 	["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING UNIT_CONNECTION",
-	["pereclipse"]          = 'UNIT_POWER',
 	['curmana']             = 'UNIT_POWER UNIT_MAXPOWER',
 	['maxmana']             = 'UNIT_POWER UNIT_MAXPOWER',
-	['soulshards']          = 'UNIT_POWER SPELLS_CHANGED',
+	['soulshards']          = 'UNIT_POWER',
 	['holypower']           = 'UNIT_POWER SPELLS_CHANGED',
-	['chi']                 = 'UNIT_POWER',
-	['shadoworbs']          = 'UNIT_POWER SPELLS_CHANGED',
+	['chi']                 = 'UNIT_POWER SPELLS_CHANGED',
+	['arcanecharges']       = 'UNIT_POWER SPELLS_CHANGED',
+	['powercolor']          = 'UNIT_DISPLAYPOWER',
 }
 
 local unitlessEvents = {
@@ -413,8 +423,6 @@ local unitlessEvents = {
 	PARTY_LEADER_CHANGED = true,
 
 	GROUP_ROSTER_UPDATE = true,
-
-	UNIT_COMBO_POINTS = true
 }
 
 local events = {}
